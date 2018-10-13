@@ -1,0 +1,15 @@
+dlc.simg
+dlc-working-template
+__pycache__
+test-folder
+virgin-test-folder
+test-folder-output
+bottom-network
+*.avi
+side-network
+dilucid-configuration
+*.mp4
+.idea/workspace.xml
+WR51_v_cam_0_v050.*
+mne-side-crf-26-model
+mne-side-crf-26-targets

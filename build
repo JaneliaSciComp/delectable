@@ -1,0 +1,21 @@
+#! /bin/bash
+
+# Copy the official DLC code into a parallel folder
+# that we'll modify to suit
+cp -r dlc dlc-working-template
+
+# Modify the parallel folder to eliminate the demo stuff, 
+# and download the pretrained models
+rm dlc-working-template/videos/*
+rm dlc-working-template/Generating_a_Training_Set/IsCroppingOKreachingvideo1.png
+rm dlc-working-template/Generating_a_Training_Set/reachingvideo1.avi
+rm dlc-working-template/Generating_a_Training_Set/*.ipynb
+rm -r dlc-working-template/Generating_a_Training_Set/data-reaching
+rm -r dlc-working-template/pose-tensorflow/models/reachingJan30-trainset95shuffle1
+rm -r dlc-working-template/pose-tensorflow/models/UnaugmentedDataSet_reachingJan30
+rm -r dlc-working-template/docs  # to save space
+cp ./Step2_ConvertingLabels2DataFrame.py ./dlc-working-template/Generating_a_Training_Set  # need to not rename .csv files
+pushd dlc-working-template/pose-tensorflow/models/pretrained
+./download.sh
+popd
+
