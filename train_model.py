@@ -7,10 +7,6 @@ import shutil
 import pwd
 
 
-# import runpy
-# import subprocess
-# import pathlib
-
 def get_username():
     return pwd.getpwuid(os.getuid())[0]
 
@@ -22,7 +18,7 @@ def is_empty(lst):
 def does_match_extension(file_name, target_extension):
     # target_extension should include the dot
     extension = os.path.splitext(file_name)[1]
-    return (extension == target_extension)
+    return extension == target_extension
 
 
 def replace_extension(file_name, new_extension):
@@ -220,9 +216,6 @@ def train(targets_folder_path,
     #
     #     # Re-throw the exception
     #     raise e
-
-
-# end of function
 
 
 #
