@@ -55,5 +55,7 @@ multi_step:
 display_iters: 1000
 # How often to save training snapshot
 save_iters: 50000
+#max_iters: 5000
+max_iters: 1030000
 
 
