@@ -4,10 +4,10 @@ import sys
 import os
 import tempfile
 import shutil
-#import runpy
-import subprocess
 import pwd
-import pathlib
+#import runpy
+#import subprocess
+#import pathlib
 
 def get_username():
     return pwd.getpwuid( os.getuid() )[ 0 ]
@@ -64,15 +64,32 @@ def execfile(file_path, globals=None, locals=None):
     })
     file_path = os.path.abspath(file_path)
     parent_folder_path = os.path.dirname(file_path)
-    with add_path(parent_folder_path) :
+    with add_path(parent_folder_path):
         with open(file_path, 'rt') as file:
             exec(compile(file.read(), file_path, 'exec'), globals, locals)
 # end of function
 
 
-def train(targets_folder_path, 
-          network_folder_path):
+def load_configuration_file(file_path) :
+    globals = {}
+    globals.update({
+        "__file__": file_path,
+        "__name__": "__main__",
+    })
+    locals = {}
+    file_path = os.path.abspath(file_path)
+    parent_folder_path = os.path.dirname(file_path)
+    with add_path(parent_folder_path) :
+        with open(file_path, 'rt') as file:
+            exec(compile(file.read(), file_path, 'exec'), globals, locals)
+    return locals
+# end of function
 
+
+def train(targets_folder_path,
+          network_folder_path,
+          configuration):
+    
     # Determine the absolute path to the "reference" DLC folder
     this_script_path = os.path.realpath(__file__)
     this_script_folder_path = os.path.dirname(this_script_path)
@@ -107,6 +124,7 @@ def train(targets_folder_path,
     shutil.copyfile(configuration_file_path, scratch_configuration_file_path)
 
     # Copy the targets folder to the scratch DLC folder, in the right place
+    Task = configuration['Task']
     data_folder_name = "data-" + Task  # e.g. "data-licking-side"
     targets_folder_name = os.path.basename(targets_folder_path)
     scratch_targets_folder_path = os.path.join(scratch_dlc_root_folder_path, "Generating_a_Training_Set", data_folder_name, targets_folder_name)
@@ -144,6 +162,7 @@ def train(targets_folder_path,
 
     # Copy the relevant folders over to the pose-tensorflow folder
     tensorflow_models_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "models")
+    date = configuration['date']
     trainset_folder_name =  Task + date + "-trainset95shuffle1"
     source_trainset_folder_path = os.path.join(scratch_dlc_root_folder_path, "Generating_a_Training_Set", trainset_folder_name)
     dest_trainset_folder_path = os.path.join(tensorflow_models_path, trainset_folder_name)
@@ -193,11 +212,17 @@ def train(targets_folder_path,
 # end of function
 
 
+#
 # main
+#
+
+# Get the arguments
 targets_folder_path = os.path.abspath(sys.argv[1])
 network_folder_path = os.path.abspath(sys.argv[2])
 
-sys.path.append(targets_folder_path)
-from myconfig import Task, date
+# Load the config file
+myconfig_file_path = os.path.join(targets_folder_path, 'myconfig.py')
+configuration = load_configuration_file(myconfig_file_path)
 
-train(targets_folder_path, network_folder_path)
+# Run the training
+train(targets_folder_path, network_folder_path, configuration)
