@@ -92,7 +92,7 @@ def train(targets_folder_path,
     # Determine the absolute path to the "reference" DLC folder
     this_script_path = os.path.realpath(__file__)
     this_script_folder_path = os.path.dirname(this_script_path)
-    template_dlc_root_folder_path = os.path.normpath(os.path.join(this_script_folder_path, "dlc-working-template"))
+    template_dlc_root_folder_path = os.path.normpath(os.path.join(this_script_folder_path, 'dlc'))
 
     # Determine the absolute path to the parent temp folder that we can write to (e.g. /scratch/svobodalab)
     initial_working_folder_path = os.getcwd()
@@ -127,15 +127,19 @@ def train(targets_folder_path,
 
     # Copy the targets folder to the scratch DLC folder, in the right place
     task = configuration['Task']
-    data_folder_name = "data-" + task  # e.g. "data-licking-side"
+    data_folder_name = 'data-' + task  # e.g. "data-licking-side"
     targets_folder_name = os.path.basename(targets_folder_path)
-    scratch_targets_folder_path = os.path.join(scratch_dlc_root_folder_path, "Generating_a_Training_Set",
-                                               data_folder_name, targets_folder_name)
+    scratch_targets_folder_path = os.path.join(scratch_dlc_root_folder_path,
+                                               'Generating_a_Training_Set',
+                                               data_folder_name,
+                                               targets_folder_name)
     shutil.copytree(targets_folder_path, scratch_targets_folder_path)
 
     # Determine absolute path to the (scratch version of the) video-analysis script
     training_folder_path = os.path.join(scratch_dlc_root_folder_path, "Generating_a_Training_Set")
-    make_data_frame_script_path = os.path.join(this_script_folder_path, "dlc", "Generating_a_Training_Set",
+    make_data_frame_script_path = os.path.join(this_script_folder_path,
+                                               "dlc",
+                                               "Generating_a_Training_Set",
                                                "Step2_ConvertingLabels2DataFrame.py")
     print("training_folder_path: %s\n" % training_folder_path)
 
@@ -152,7 +156,9 @@ def train(targets_folder_path,
             'There was a problem running, %s return code %d' % (make_data_frame_script_path, return_code))
     # import Step2_ConvertingLabels2DataFrame  # this is the one in the same folder as this file, hopefully
 
-    make_training_file_script_path = os.path.join(this_script_folder_path, "dlc", "Generating_a_Training_Set",
+    make_training_file_script_path = os.path.join(this_script_folder_path,
+                                                  "dlc",
+                                                  "Generating_a_Training_Set",
                                                   "Step4_GenerateTrainingFileFromLabelledData.py")
     print("make_training_file_script_path: %s\n" % make_training_file_script_path)
     # runpy.run_path(make_training_file_script_path)
@@ -168,21 +174,33 @@ def train(targets_folder_path,
     os.chdir(initial_working_folder_path)
 
     # Copy the relevant folders over to the pose-tensorflow folder
-    tensorflow_models_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "models")
+    scratch_tensorflow_models_path = os.path.join(scratch_dlc_root_folder_path,
+                                                  "pose-tensorflow",
+                                                  "models")
     date = configuration['date']
     trainset_folder_name = task + date + "-trainset95shuffle1"
     source_trainset_folder_path = os.path.join(scratch_dlc_root_folder_path, "Generating_a_Training_Set",
                                                trainset_folder_name)
-    dest_trainset_folder_path = os.path.join(tensorflow_models_path, trainset_folder_name)
+    dest_trainset_folder_path = os.path.join(scratch_tensorflow_models_path, trainset_folder_name)
     unaugmented_data_set_folder_name = "UnaugmentedDataSet_" + task + date
     unaugmented_data_set_folder_path = os.path.join(scratch_dlc_root_folder_path, "Generating_a_Training_Set",
                                                     unaugmented_data_set_folder_name)
-    dest_unaugmented_data_set_folder_path = os.path.join(tensorflow_models_path, unaugmented_data_set_folder_name)
+    dest_unaugmented_data_set_folder_path = os.path.join(scratch_tensorflow_models_path, unaugmented_data_set_folder_name)
     shutil.copytree(source_trainset_folder_path, dest_trainset_folder_path)
     shutil.copytree(unaugmented_data_set_folder_path, dest_unaugmented_data_set_folder_path)
 
+    # Copy the pretrained models to the right place in the scratch folder
+    scratch_pretrained_folder_path = os.path.join(scratch_tensorflow_models_path,
+                                                  'pretrained')
+    if not os.path.exists(scratch_pretrained_folder_path):
+        os.makedirs(scratch_pretrained_folder_path)
+    resnet_50_path = os.path.join(this_script_folder_path, 'resnet_v1_50.ckpt')
+    resnet_101_path = os.path.join(this_script_folder_path, 'resnet_v1_101.ckpt')
+    shutil.copy(resnet_50_path, scratch_pretrained_folder_path)
+    shutil.copy(resnet_101_path, scratch_pretrained_folder_path)
+
     # cd into the (scratch) folder, run the training script, cd back
-    folder_for_running_training_path = os.path.join(tensorflow_models_path, trainset_folder_name, "train")
+    folder_for_running_training_path = os.path.join(scratch_tensorflow_models_path, trainset_folder_name, "train")
     # training_script_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "train.py")
     training_script_path = os.path.join(this_script_folder_path, "dlc", "pose-tensorflow", "train.py")
     os.chdir(folder_for_running_training_path)
@@ -194,12 +212,13 @@ def train(targets_folder_path,
     os.system('/usr/bin/python3 %s' % training_script_path)
     os.chdir(initial_working_folder_path)
 
+    # Delete the scratch pretrained models
+    shutil.rmtree(scratch_pretrained_folder_path)
+
     # Copy the scratch network folder output file location
-    scratch_network_folder_path = dest_trainset_folder_path
     print("About to copy result to final location...")
-    print("scratch_network_folder_path: %s" % scratch_network_folder_path)
     print("network_folder_path: %s" % network_folder_path)
-    shutil.copytree(scratch_network_folder_path, network_folder_path)
+    shutil.copytree(scratch_tensorflow_models_path, network_folder_path)
 
     # Remove the scratch folder we created to hold the scratch DLC folder
     shutil.rmtree(scratch_dlc_container_path)

@@ -92,7 +92,7 @@ def test(targets_folder_path,
     # Determine the absolute path to the "reference" DLC folder
     this_script_path = os.path.realpath(__file__)
     this_script_folder_path = os.path.dirname(this_script_path)
-    template_dlc_root_folder_path = os.path.normpath(os.path.join(this_script_folder_path, "dlc-working-template"))
+    template_dlc_root_folder_path = os.path.normpath(os.path.join(this_script_folder_path, 'dlc'))
 
     # Determine the absolute path to the parent temp folder that we can write to (e.g. /scratch/svobodalab)
     initial_working_folder_path = os.getcwd()
@@ -134,14 +134,14 @@ def test(targets_folder_path,
     shutil.copytree(targets_folder_path, scratch_targets_folder_path)
 
     # Copy the model folder to the scratch DLC folder, in the right place
-    tensorflow_models_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "models")
-    date = configuration['date']
-    trainset_folder_name = task + date + "-trainset95shuffle1"
-    scratch_network_folder_path = os.path.join(tensorflow_models_path, trainset_folder_name)
+    scratch_tensorflow_models_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "models")
+    #date = configuration['date']
+    #trainset_folder_name = task + date + "-trainset95shuffle1"
+    #scratch_network_folder_path = os.path.join(scratch_tensorflow_models_path, trainset_folder_name)
     print("About to copy network folder to scratch location...")
     print("network_folder_path: %s" % network_folder_path)
-    print("scratch_network_folder_path: %s" % scratch_network_folder_path)
-    shutil.copytree(network_folder_path, scratch_network_folder_path)
+    print("scratch_tensorflow_models_path: %s" % scratch_tensorflow_models_path)
+    shutil.copytree(network_folder_path, scratch_tensorflow_models_path)
 
     # cd into the scratch analysis folder
     testing_scripts_scratch_folder_path = os.path.join(scratch_dlc_root_folder_path, "Evaluation-Tools")
@@ -177,21 +177,21 @@ def test(targets_folder_path,
     os.chdir(initial_working_folder_path)
 
     # # Copy the relevant folders over to the pose-tensorflow folder
-    # tensorflow_models_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "models")
+    # scratch_tensorflow_models_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "models")
     # date = configuration['date']
     # trainset_folder_name = task + date + "-trainset95shuffle1"
     # source_trainset_folder_path = os.path.join(scratch_dlc_root_folder_path, "Generating_a_Training_Set",
     #                                            trainset_folder_name)
-    # dest_trainset_folder_path = os.path.join(tensorflow_models_path, trainset_folder_name)
+    # dest_trainset_folder_path = os.path.join(scratch_tensorflow_models_path, trainset_folder_name)
     # unaugmented_data_set_folder_name = "UnaugmentedDataSet_" + task + date
     # unaugmented_data_set_folder_path = os.path.join(scratch_dlc_root_folder_path, "Generating_a_Training_Set",
     #                                                 unaugmented_data_set_folder_name)
-    # dest_unaugmented_data_set_folder_path = os.path.join(tensorflow_models_path, unaugmented_data_set_folder_name)
+    # dest_unaugmented_data_set_folder_path = os.path.join(scratch_tensorflow_models_path, unaugmented_data_set_folder_name)
     # shutil.copytree(source_trainset_folder_path, dest_trainset_folder_path)
     # shutil.copytree(unaugmented_data_set_folder_path, dest_unaugmented_data_set_folder_path)
     #
     # # cd into the (scratch) folder, run the training script, cd back
-    # folder_for_running_training_path = os.path.join(tensorflow_models_path, trainset_folder_name, "train")
+    # folder_for_running_training_path = os.path.join(scratch_tensorflow_models_path, trainset_folder_name, "train")
     # # training_script_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "train.py")
     # training_script_path = os.path.join(this_script_folder_path, "dlc", "pose-tensorflow", "train.py")
     # os.chdir(folder_for_running_training_path)

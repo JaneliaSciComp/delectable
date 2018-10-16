@@ -107,7 +107,8 @@ def train():
     # Restore variables from disk.
     restorer.restore(sess, cfg.init_weights)
 
-    max_iter = int(cfg.multi_step[-1][1])
+    #max_iter = int(cfg.multi_step[-1][1])
+    max_iter = int(cfg.max_iters)
 
     display_iters = cfg.display_iters
     cum_loss = 0.0
