@@ -87,8 +87,7 @@ def load_configuration_file(file_path):
 
 
 def train(targets_folder_path,
-          network_folder_path,
-          configuration):
+          network_folder_path):
 
     # Determine the absolute path to the "reference" DLC folder
     this_script_path = os.path.realpath(__file__)
@@ -117,9 +116,12 @@ def train(targets_folder_path,
     # Copy the reference DLC folder to the scratch one
     shutil.copytree(template_dlc_root_folder_path, scratch_dlc_root_folder_path)
 
-    # Copy the configuration file into the scratch DLC folder
+    # Load the configuration file
     configuration_file_name = 'myconfig.py'
     configuration_file_path = os.path.join(targets_folder_path, configuration_file_name)
+    configuration = load_configuration_file(configuration_file_path)
+
+    # Copy the configuration file into the scratch DLC folder
     scratch_configuration_file_path = os.path.join(scratch_dlc_root_folder_path, configuration_file_name)
     shutil.copyfile(configuration_file_path, scratch_configuration_file_path)
 
@@ -226,9 +228,5 @@ def train(targets_folder_path,
 targets_folder_path = os.path.abspath(sys.argv[1])
 network_folder_path = os.path.abspath(sys.argv[2])
 
-# Load the config file
-myconfig_file_path = os.path.join(targets_folder_path, 'myconfig.py')
-configuration = load_configuration_file(myconfig_file_path)
-
 # Run the training
-train(targets_folder_path, network_folder_path, configuration)
+train(targets_folder_path, network_folder_path)
