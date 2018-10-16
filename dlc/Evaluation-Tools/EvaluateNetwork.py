@@ -49,29 +49,42 @@ trainFractionIndex=int(sys.argv[3])
 shuffle=Shuffles[shuffleIndex]
 trainFraction=TrainingFraction[trainFractionIndex]
 
-basefolder = os.path.join('..','pose-tensorflow','models')
-folder = os.path.join('UnaugmentedDataSet_' + Task + date)
+working_directory_path = os.getcwd()
+parent_directory_path = os.path.dirname(working_directory_path)
+#basefolder = os.path.join('..', 'pose-tensorflow', 'models')
+models_folder_path = os.path.join(parent_directory_path, 'pose-tensorflow', 'models')
+unaugmented_folder_name = os.path.join('UnaugmentedDataSet_' + Task + date)
 
-datafile = ('Documentation_data-' + Task + '_' +
-            str(int(TrainingFraction[trainFractionIndex] * 100)) + 'shuffle' +
-            str(int(Shuffles[shuffleIndex])) + '.pickle')
+pickle_file_name = ('Documentation_data-' + Task + '_' +
+                    str(int(TrainingFraction[trainFractionIndex] * 100)) + 'shuffle' +
+                    str(int(Shuffles[shuffleIndex])) + '.pickle')
+pickle_file_path = os.path.join(models_folder_path, unaugmented_folder_name, pickle_file_name)
+print("In EvaluateNetwork.py, pickle_file_path: %s" % pickle_file_path)
 
 # loading meta data / i.e. training & test files & labels
-with open(os.path.join(basefolder, folder ,datafile), 'rb') as f:
-    data, trainIndices, testIndices, __ignore__ = pickle.load(f)
+try:
+    with open(pickle_file_path, 'rb') as f:
+        data, trainIndices, testIndices, __ignore__ = pickle.load(f)
+except FileNotFoundError:
+    print('Caught the file not found error!')
+    raise
 
-Data = pd.read_hdf(os.path.join(basefolder, folder, 'data-'+Task ,'CollectedData_' + scorer + '.h5'),'df_with_missing')
+print('Now we are at the code after we caught the file not found error!')
+
+
+hdf_file_name = os.path.join(models_folder_path, unaugmented_folder_name, 'data-' + Task, 'CollectedData_' + scorer + '.h5')
+Data = pd.read_hdf(hdf_file_name, 'df_with_missing')
 
 #######################################################################
 # Load and setup CNN part detector as well as its configuration
 #######################################################################
 
 experimentname = Task + date + '-trainset' + str(int(trainFraction * 100)) + 'shuffle' + str(shuffle)
-cfg = load_config(os.path.join(basefolder , experimentname , 'test' ,"pose_cfg.yaml"))
-modelfolder = os.path.join(basefolder, experimentname)
+cfg = load_config(os.path.join(models_folder_path, experimentname, 'test', "pose_cfg.yaml"))
+modelfolder = os.path.join(models_folder_path, experimentname)
 
 Snapshots = np.array([fn.split('.')[0]
-    for fn in os.listdir(os.path.join(basefolder, experimentname , 'train'))
+    for fn in os.listdir(os.path.join(models_folder_path, experimentname, 'train'))
     if "index" in fn
 ])
 increasing_indices = np.argsort([int(m.split('-')[1]) for m in Snapshots])
@@ -104,7 +117,7 @@ except FileNotFoundError:
     ##################################################
     
     for imageindex, imagename in tqdm(enumerate(Data.index)):
-        image = io.imread(os.path.join(basefolder,folder,'data-' + Task , imagename),mode='RGB')
+        image = io.imread(os.path.join(models_folder_path, unaugmented_folder_name, 'data-' + Task, imagename), mode='RGB')
         image = skimage.color.gray2rgb(image)
         image_batch = data_to_input(image)
         # Compute prediction with the CNN

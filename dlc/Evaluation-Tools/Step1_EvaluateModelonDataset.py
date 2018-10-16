@@ -76,12 +76,13 @@ for shuffleIndex, shuffle in enumerate(Shuffles):
                     100)) + 'shuffle' + str(shuffle) + '_' + str(trainingsiterations) + "forTask_" + Task
 
             print("Running ", scorer, " with # of trainingiterations:", trainingsiterations)
-            try:
-                Data = pd.read_hdf(os.path.join("Results",scorer + '.h5'),'df_with_missing')
+            results_hdf_file_name = os.path.join("Results", scorer + '.h5')
+            if os.path.isfile(results_hdf_file_name) :
+                #Data = pd.read_hdf(os.path.join("Results", scorer + '.h5'), 'df_with_missing')
                 print("This net has already been evaluated!")
-            except FileNotFoundError:
-                    # if not analyzed, then call auxiliary script to analyze the network:
-                    try: 
-                        subprocess.call(['python3','EvaluateNetwork.py',str(snapIndex),str(shuffleIndex),str(trainFractionIndex)])
-                    except FileNotFoundError: #in case you call python3 with the command: python.
-                        subprocess.call(['python','EvaluateNetwork.py',str(snapIndex),str(shuffleIndex),str(trainFractionIndex)])
+            else :
+                # if not analyzed, then call auxiliary script to analyze the network:
+                return_code = subprocess.call(['python3','EvaluateNetwork.py',str(snapIndex),str(shuffleIndex),str(trainFractionIndex)])
+                if return_code != 0:
+                    raise RuntimeError(
+                        'There was a problem running EvaluateNetwork.py, return code was %d' % return_code)
