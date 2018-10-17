@@ -156,18 +156,18 @@ for trainFraction in TrainingFraction:
           print("With pcutoff of", pcutoff," train error:",np.round(trainerrorpcutoff,2), "pixels. Test error:", np.round(testerrorpcutoff,2), "pixels")
           print("Thereby, the errors are given by the average distances between the labels by DLC and the scorer.")
 
-          if plotting==True:
-             foldername=os.path.join('LabeledImages_'+scorer_machine)
-             auxiliaryfunctions.attempttomakefolder(foldername)
-             NumFrames=np.size(DataCombined.index)
-             for ind in np.arange(NumFrames):
-                 fn=DataCombined.index[ind]
-                 
-                 fig=plt.figure()
-                 ax=fig.add_subplot(1,1,1)
-                 MakeLabeledImage(DataCombined,ind,os.path.join(datafolder,'data-'+Task),[scorer,scorer_machine],comparisonbodyparts,colors)
-                 if ind in trainIndexes:
-                     plt.savefig(os.path.join(foldername,'TrainingImg'+str(ind)+'_'+fn.split('/')[0]+'_'+fn.split('/')[1]))
-                 else:
-                     plt.savefig(os.path.join(foldername,'TestImg'+str(ind)+'_'+fn.split('/')[0]+'_'+fn.split('/')[1]))
-                 plt.close("all")
+          # if plotting==True:
+          #    foldername=os.path.join('LabeledImages_'+scorer_machine)
+          #    auxiliaryfunctions.attempttomakefolder(foldername)
+          #    NumFrames=np.size(DataCombined.index)
+          #    for ind in np.arange(NumFrames):
+          #        fn=DataCombined.index[ind]
+          #
+          #        fig=plt.figure()
+          #        ax=fig.add_subplot(1,1,1)
+          #        MakeLabeledImage(DataCombined,ind,os.path.join(datafolder,'data-'+Task),[scorer,scorer_machine],comparisonbodyparts,colors)
+          #        if ind in trainIndexes:
+          #            plt.savefig(os.path.join(foldername,'TrainingImg'+str(ind)+'_'+fn.split('/')[0]+'_'+fn.split('/')[1]))
+          #        else:
+          #            plt.savefig(os.path.join(foldername,'TestImg'+str(ind)+'_'+fn.split('/')[0]+'_'+fn.split('/')[1]))
+          #        plt.close("all")
