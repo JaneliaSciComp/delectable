@@ -25,10 +25,15 @@ import numpy as np
 import pandas as pd
 import os
 import sys
+import re
 
 def get_file_extension(file_name) :
     # the extension will include the dot
     return os.path.splitext(file_name)[1]
+
+def natural_sort_key(s, _nsre=re.compile('([0-9]+)')):
+    return [int(text) if text.isdigit() else text.lower()
+            for text in re.split(_nsre, s)]
 
 sys.path.append(os.getcwd().split('Generating_a_Training_Set')[0])
 from myconfig import Task, bodyparts, Scorers, invisibleboundary, multibodypartsfile, multibodypartsfilename, imagetype
@@ -67,6 +72,7 @@ for scorer in Scorers:
         videodatasets for videodatasets in os.listdir(os.curdir)
         if ( os.path.isdir(videodatasets) and videodatasets!='__pycache__' )
     ]
+    folders.sort(key=natural_sort_key)
     try:
         DataSingleUser = pd.read_hdf('CollectedData_' + scorer + '.h5',
                                      'df_with_missing')
@@ -94,7 +100,8 @@ for scorer in Scorers:
                 fn for fn in os.listdir(os.curdir)
                 if (get_file_extension(fn)==imagetype and "_labelled" not in fn)
             ]
-            files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+            #files.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+            files.sort(key=natural_sort_key)
 
             imageaddress = [folder + '/' + f for f in files]
             Data_onefolder = pd.DataFrame({'Image name': imageaddress})
