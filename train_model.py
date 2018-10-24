@@ -5,10 +5,7 @@ import os
 import tempfile
 import shutil
 import pwd
-
-
-def get_username():
-    return pwd.getpwuid(os.getuid())[0]
+import dlct
 
 
 def is_empty(lst):
@@ -96,8 +93,8 @@ def train(targets_folder_path,
 
     # Determine the absolute path to the parent temp folder that we can write to (e.g. /scratch/svobodalab)
     initial_working_folder_path = os.getcwd()
-    print("username is %s" % get_username())
-    scratch_folder_path = "/tmp"
+    #print("username is %s" % dlct.get_username())
+    scratch_folder_path = dlct.determine_scratch_folder_path()
     print("scratch_folder_path is %s" % scratch_folder_path)
 
     scratch_dlc_container_path_maybe = []  # want to keep track of this so we know whether or not to delete it
