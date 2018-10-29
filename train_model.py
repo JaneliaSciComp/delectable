@@ -213,6 +213,9 @@ def train(targets_folder_path,
     training_script_path = os.path.join(delectable_folder_path, "dlc", "pose-tensorflow", "train.py")
     os.system('/usr/bin/python3 %s' % training_script_path)
 
+    # Delete the pretrained model folder in the scratch area
+    shutil.rmtree(scratch_pretrained_folder_path)    
+
     # cd back to the original working directory
     os.chdir(initial_working_folder_path)
 
@@ -227,8 +230,8 @@ def train(targets_folder_path,
 
     # Remove the scratch folder we created to hold the scratch DLC folder
     # Or not
-    print('Leaving scratch folder in place at %s' % scratch_dlc_container_path)
-    #shutil.rmtree(scratch_dlc_container_path)
+    #print('Leaving scratch folder in place at %s' % scratch_dlc_container_path)
+    shutil.rmtree(scratch_dlc_container_path)
 
     # except Exception as e:
     #     # Try to clean up some before re-throwing
