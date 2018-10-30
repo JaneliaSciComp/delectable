@@ -1,0 +1,5 @@
+#! /bin/bash
+
+PATH_OF_SCRIPT="$(realpath "$0")"
+PATH_OF_SCRIPT_FOLDER="$(dirname "$PATH_OF_SCRIPT")"
+python3 $PATH_OF_SCRIPT_FOLDER/apply_model.py $1 $2
