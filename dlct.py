@@ -10,7 +10,6 @@ import pwd
 def get_username():
     return pwd.getpwuid(os.getuid())[0]
 
-
 def determine_scratch_folder_path():
     # If a /scratch folder exists, use that.  Otherwise, use /tmp.
     username = get_username()
@@ -32,10 +31,9 @@ def does_match_extension(file_name, target_extension) :
     extension = os.path.splitext(file_name)[1]
     return (extension == target_extension)
 
-def replace_extension(file_name, new_extension) :
+def replace_extension(file_path, new_extension) :
     # new_extension should include the dot
-    base_name = os.path.splitext(file_name)[0]
-    return base_name + new_extension
+    return os.path.splitext(file_path)[0] + new_extension
 
 class add_path:
     def __init__(self, path):

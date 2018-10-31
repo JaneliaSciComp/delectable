@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/groups/scicompsoft/home/taylora/dlc/delectable/apply_model.py", line 82, in <module>
+    configuration = dlct.load_configuration_file(configuration_file_path)
+  File "/groups/scicompsoft/home/taylora/dlc/delectable/dlct.py", line 61, in load_configuration_file
+    with open(file_path, 'rt') as file:
+FileNotFoundError: [Errno 2] No such file or directory: '/groups/scicompsoft/home/taylora/dlc/delectable/below-crf-51-model-3/myconfig_analysis.py'

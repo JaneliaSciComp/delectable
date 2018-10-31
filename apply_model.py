@@ -73,26 +73,34 @@ def output_file_path_from_input_paths(model_folder_path, video_file_path, output
 
 # Get the command-line args
 model_folder_path = os.path.abspath(sys.argv[1])
-video_file_path = os.path.abspath(sys.argv[1])
+video_file_path = os.path.abspath(sys.argv[2])
 output_file_path = output_file_path_from_input_paths(model_folder_path, video_file_path, os.getcwd())
 
 # Load the configuration file
-configuration_file_name = 'myconfig_analysis.py'
+configuration_file_name = 'myconfig.py'
 configuration_file_path = os.path.join(model_folder_path, configuration_file_name)
 configuration = dlct.load_configuration_file(configuration_file_path)
-cropping = configuration['cropping']
 Task = configuration['Task']
 date = configuration['date']
-trainingsFraction = configuration['trainingsFraction']
+#trainingsFraction = configuration['trainingsFraction']
 resnet = configuration['resnet']
 snapshotindex = configuration['snapshotindex']
-shuffle = configuration['shuffle']
+#shuffle = configuration['shuffle']
+cropping = configuration['cropping']
 x1 = configuration['x1']
 x2 = configuration['x2']
 y1 = configuration['y1']
 y2 = configuration['y2']
-videotype = configuration['videotype']
-storedata_as_csv = configuration['storedata_as_csv']
+#videotype = configuration['videotype']
+#storedata_as_csv = configuration['storedata_as_csv']
+trainingFractionList = configuration['TrainingFraction']
+shuffleList = configuration['Shuffles']
+
+# These things are in myconfig_analysis.py in raw DeepLabCut
+trainingFraction = trainingFractionList[0]
+shuffle = shuffleList[0]
+storedata_as_csv = True
+
 
 ####################################################
 # Loading data, and defining model folder
@@ -101,7 +109,7 @@ storedata_as_csv = configuration['storedata_as_csv']
 #basefolder = os.path.join('..','pose-tensorflow','models')
 #basefolder = os.path.join(network_file_path, 'network')
 modelfolder = os.path.join(model_folder_path,
-                           Task + str(date) + '-trainset' + str(int(trainingsFraction * 100)) + 'shuffle' + str(shuffle))
+                           Task + str(date) + '-trainset' + str(int(trainingFraction * 100)) + 'shuffle' + str(shuffle))
 
 cfg = load_config(os.path.join(modelfolder , 'test' ,"pose_cfg.yaml"))
 

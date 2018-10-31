@@ -1,0 +1,43 @@
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@f13u15>
+Subject: Job 49329307: <singularity exec -B /scratch --nv /groups/scicompsoft/home/taylora/dlc/delectable/dlc.simg python3 /groups/scicompsoft/home/taylora/dlc/delectable/apply_model.py below-crf-51-model-3 WR54_v_cam_1_v021-crf-51.mp4> in cluster <Janelia> Exited
+
+Job <singularity exec -B /scratch --nv /groups/scicompsoft/home/taylora/dlc/delectable/dlc.simg python3 /groups/scicompsoft/home/taylora/dlc/delectable/apply_model.py below-crf-51-model-3 WR54_v_cam_1_v021-crf-51.mp4> was submitted from host <c11u25> by user <taylora> in cluster <Janelia> at Tue Oct 30 17:21:19 2018
+Job was executed on host(s) <2*f13u15>, in queue <gpu_any>, as user <taylora> in cluster <Janelia> at Tue Oct 30 17:45:44 2018
+</groups/scicompsoft/home/taylora> was used as the home directory.
+</groups/scicompsoft/home/taylora/dlc/delectable> was used as the working directory.
+Started at Tue Oct 30 17:45:44 2018
+Terminated at Tue Oct 30 17:45:59 2018
+Results reported at Tue Oct 30 17:45:59 2018
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+singularity exec -B /scratch --nv /groups/scicompsoft/home/taylora/dlc/delectable/dlc.simg python3 /groups/scicompsoft/home/taylora/dlc/delectable/apply_model.py below-crf-51-model-3 WR54_v_cam_1_v021-crf-51.mp4
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   13.71 sec.
+    Max Memory :                                 127 MB
+    Average Memory :                             96.17 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                12
+    Run time :                                   15 sec.
+    Turnaround time :                            1480 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <WR54_v_cam_1_v021-crf-51.mp4-applying-stderr.txt> for stderr output of this job.
+

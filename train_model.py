@@ -54,18 +54,18 @@ class add_path:
         sys.path = self.original_sys_path.copy()
 
 
-def execfile(file_path, my_globals=None, my_locals=None):
-    if my_globals is None:
-        my_globals = {}
-    my_globals.update({
-        "__file__": file_path,
-        "__name__": "__main__",
-    })
-    file_path = os.path.abspath(file_path)
-    parent_folder_path = os.path.dirname(file_path)
-    with add_path(parent_folder_path):
-        with open(file_path, 'rt') as file:
-            exec(compile(file.read(), file_path, 'exec'), my_globals, my_locals)
+# def execfile(file_path, my_globals=None, my_locals=None):
+#     if my_globals is None:
+#         my_globals = {}
+#     my_globals.update({
+#         "__file__": file_path,
+#         "__name__": "__main__",
+#     })
+#     file_path = os.path.abspath(file_path)
+#     parent_folder_path = os.path.dirname(file_path)
+#     with add_path(parent_folder_path):
+#         with open(file_path, 'rt') as file:
+#             exec(compile(file.read(), file_path, 'exec'), my_globals, my_locals)
 
 
 def load_configuration_file(file_path):
