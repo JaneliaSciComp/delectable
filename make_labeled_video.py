@@ -188,7 +188,7 @@ def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_fold
     print("All labeled frames were created, now generating video...")
     try:
         subprocess.call([
-            'ffmpeg', '-f', '-framerate',
+            'ffmpeg', '-y', '-framerate',
             str(clip.fps), '-i', 'frame-%04d.png', '-pix_fmt', 'yuv420p', output_file_path])
     except FileNotFoundError:
         print("Ffmpeg not correctly installed, see https://github.com/AlexEMG/DeepLabCut/issues/45")
@@ -215,7 +215,7 @@ def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_fold
 #auxiliaryfunctions.attempttomakefolder(tmpfolder)
 
 generalized_slash_tmp_path = dlct.determine_scratch_folder_path()
-print("scratch_folder_path is %s" % generalized_slash_tmp_path)
+print("generalized_slash_tmp_path is %s" % generalized_slash_tmp_path)
 scratch_folder_path_maybe = []  # want to keep track of this so we know whether or not to delete it
 try:
     # Synthesize the output file path
