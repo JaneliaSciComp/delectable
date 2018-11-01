@@ -187,9 +187,12 @@ def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_fold
 
     print("All labeled frames were created, now generating video...")
     try:
+        #subprocess.call([
+        #    'ffmpeg', '-y', '-framerate',
+        #    str(clip.fps), '-i', 'frame-%04d.png', '-pix_fmt', 'yuv420p', output_file_path])
         subprocess.call([
             'ffmpeg', '-y', '-framerate',
-            str(clip.fps), '-i', 'frame-%04d.png', '-pix_fmt', 'yuv420p', output_file_path])
+            '30', '-i', 'frame-%04d.png', '-pix_fmt', 'yuv420p', output_file_path])
     except FileNotFoundError:
         print("Ffmpeg not correctly installed, see https://github.com/AlexEMG/DeepLabCut/issues/45")
 
