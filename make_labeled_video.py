@@ -55,6 +55,7 @@ import glob
 import dlct
 import tempfile
 import shutil
+import time
 
 ####################################################
 # Loading descriptors of model
@@ -112,26 +113,26 @@ colormap_name = 'Set1' #other colorschemes: 'cool' and see https://matplotlib.or
 # Auxiliary function
 ####################################################
 
-# https://stackoverflow.com/questions/14720331/how-to-generate-random-colors-in-matplotlib
-def get_repeated_cmap(cmap_name, n_parts):
-    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct
-    RGB color; the keyword argument name must be a standard mpl colormap name.'''
-    #return plt.cm.get_cmap(cmap_name, n)
-
-    raw_cmap = plt.cm.get_cmap(cmap_name)
-    n_raw_colors = raw_cmap.N
-
-    def cmap(i) :
-        return raw_cmap(i % n_raw_colors)
-
-    return cmap
+# # https://stackoverflow.com/questions/14720331/how-to-generate-random-colors-in-matplotlib
+# def get_repeated_cmap(cmap_name, n_parts):
+#     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct
+#     RGB color; the keyword argument name must be a standard mpl colormap name.'''
+#     #return plt.cm.get_cmap(cmap_name, n)
+#
+#     raw_cmap = plt.cm.get_cmap(cmap_name)
+#     n_raw_colors = raw_cmap.N
+#
+#     def cmap(i) :
+#         return raw_cmap(i % n_raw_colors)
+#
+#     return cmap
 
 
 def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_folder_path, output_file_path):
     ''' Creating individual frames with labeled body parts and making a video''' 
     scorer=np.unique(Dataframe.columns.get_level_values(0))[0]
     bodyparts2plot = list(np.unique(Dataframe.columns.get_level_values(1)))
-    colors = get_repeated_cmap(colormap_name, len(bodyparts2plot))
+    colors = dlct.get_repeated_cmap(colormap_name, len(bodyparts2plot))
 
     ny, nx = clip.size  # dimensions of frame (height, width)
     fps = clip.fps
@@ -180,10 +181,11 @@ def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_fold
                 left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
             plt.gca().invert_yaxis()
             plt.savefig(frame_file_path)
+            plt.clf()
 
             plt.close("all")
 
-    os.chdir(frames_folder_path)
+    #os.chdir(frames_folder_path)
 
     print("All labeled frames were created, now generating video...")
     try:
@@ -192,7 +194,7 @@ def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_fold
         #    str(clip.fps), '-i', 'frame-%04d.png', '-pix_fmt', 'yuv420p', output_file_path])
         subprocess.call([
             'ffmpeg', '-y', '-framerate',
-            '30', '-i', 'frame-%04d.png', '-pix_fmt', 'yuv420p', output_file_path])
+            '30', '-i', os.path.join(frames_folder_path, 'frame-%04d.png'), '-pix_fmt', 'yuv420p', output_file_path])
     except FileNotFoundError:
         print("Ffmpeg not correctly installed, see https://github.com/AlexEMG/DeepLabCut/issues/45")
 
@@ -220,14 +222,14 @@ def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_fold
 generalized_slash_tmp_path = dlct.determine_scratch_folder_path()
 print("generalized_slash_tmp_path is %s" % generalized_slash_tmp_path)
 scratch_folder_path_maybe = []  # want to keep track of this so we know whether or not to delete it
-try:
-    # Synthesize the output file path
-    output_file_path = dlct.replace_extension(h5_file_path, '.mp4')
 
-    # Make a temporary folder
-    #scratch_folder_path = dlct.replace_extension(h5_file_path, '-frames')
-    scratch_folder_path = tempfile.mkdtemp(prefix=generalized_slash_tmp_path + "/")
-    scratch_folder_path_maybe = [scratch_folder_path]
+# Synthesize the output file path
+output_file_path = dlct.replace_extension(h5_file_path, '.mp4')
+
+# Make a temporary folder
+#scratch_folder_path = dlct.replace_extension(h5_file_path, '-frames')
+scratch_folder_path = tempfile.mkdtemp(prefix=generalized_slash_tmp_path + "/")
+with tempfile.TemporaryDirectory(prefix=generalized_slash_tmp_path + "/") as scratch_folder_path :
     print("scratch_folder_path is %s" % scratch_folder_path)
 
     # Make the video with the little dots in it
@@ -240,20 +242,7 @@ try:
     clip = VideoFileClip(video_file_path)
     CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, scratch_folder_path, output_file_path)
 
-    # Delete the scratch folder
-    shutil.rmtree(scratch_folder_path)
+    #time.sleep(1)
 
-except Exception as e:
-    # Try to clean up some before re-throwing
-    print("Something went wrong!")
+    #scratch_folder_path.cleanup()
 
-    # Remove the scratch folder
-    if not dlct.is_empty(scratch_folder_path_maybe) :
-        scratch_folder_path = scratch_folder_path_maybe[0]
-        shutil.rmtree(scratch_folder_path)
-
-    # # cd back to the initial folder
-    # os.chdir(initial_working_folder_path)
-
-    # Re-throw the exception
-    raise e

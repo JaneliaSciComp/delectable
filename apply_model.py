@@ -24,7 +24,7 @@ import sys
 path_to_this_script = os.path.abspath(__file__)
 path_to_delectable_folder = os.path.dirname(path_to_this_script)
 dlc_folder_path = os.path.join(path_to_delectable_folder, "dlc")
-sys.path.append(os.path.join(dlc_folder_path, "pose-tensorflow"))
+sys.path.append(os.path.join(dlc_folder_path, "pose_tensorflow"))
 sys.path.append(os.path.join(dlc_folder_path, "Generating_a_Training_Set"))
 #sys.path.append(model_folder_path)
 

@@ -14,3 +14,6 @@ WR51_v_cam_0_v050.*
 mne-side-crf-*
 resnet*.ckpt
 below-crf-51-model-3
+*.csv
+*.h5
+

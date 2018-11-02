@@ -4,27 +4,28 @@ import sys
 import os
 import tempfile
 import shutil
-import pwd
+#import pwd
+import dlct
+import EvaluateModelOnDataSet
 
-
-def get_username():
-    return pwd.getpwuid(os.getuid())[0]
-
-
-def is_empty(lst):
-    return len(lst) == 0
-
-
-def does_match_extension(file_name, target_extension):
-    # target_extension should include the dot
-    extension = os.path.splitext(file_name)[1]
-    return extension == target_extension
-
-
-def replace_extension(file_name, new_extension):
-    # new_extension should include the dot
-    base_name = os.path.splitext(file_name)[0]
-    return base_name + new_extension
+# def get_username():
+#     return pwd.getpwuid(os.getuid())[0]
+#
+#
+# def is_empty(lst):
+#     return len(lst) == 0
+#
+#
+# def does_match_extension(file_name, target_extension):
+#     # target_extension should include the dot
+#     extension = os.path.splitext(file_name)[1]
+#     return extension == target_extension
+#
+#
+# def replace_extension(file_name, new_extension):
+#     # new_extension should include the dot
+#     base_name = os.path.splitext(file_name)[0]
+#     return base_name + new_extension
 
 
 def find_files_matching_extension(output_folder_path, output_file_extension):
@@ -40,50 +41,50 @@ def find_files_matching_extension(output_folder_path, output_file_extension):
 
     names_of_files = list(filter((lambda item_name: os.path.isfile(os.path.join(output_folder_path, item_name))),
                                  names_of_files_and_subfolders))
-    names_of_matching_files = list(filter((lambda file_name: does_match_extension(file_name, output_file_extension)),
+    names_of_matching_files = list(filter((lambda file_name: dlct.does_match_extension(file_name, output_file_extension)),
                                           names_of_files))
     return names_of_matching_files
 
 
-class add_path:
-    def __init__(self, path):
-        self.original_sys_path = sys.path.copy()
-        self.path = path
-
-    def __enter__(self):
-        sys.path.insert(0, self.path)
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        sys.path = self.original_sys_path.copy()
-
-
-def execfile(file_path, my_globals=None, my_locals=None):
-    if my_globals is None:
-        my_globals = {}
-    my_globals.update({
-        "__file__": file_path,
-        "__name__": "__main__",
-    })
-    file_path = os.path.abspath(file_path)
-    parent_folder_path = os.path.dirname(file_path)
-    with add_path(parent_folder_path):
-        with open(file_path, 'rt') as file:
-            exec(compile(file.read(), file_path, 'exec'), my_globals, my_locals)
-
-
-def load_configuration_file(file_path):
-    my_globals = {}
-    my_globals.update({
-        "__file__": file_path,
-        "__name__": "__main__",
-    })
-    my_locals = {}
-    file_path = os.path.abspath(file_path)
-    parent_folder_path = os.path.dirname(file_path)
-    with add_path(parent_folder_path):
-        with open(file_path, 'rt') as file:
-            exec(compile(file.read(), file_path, 'exec'), my_globals, my_locals)
-    return my_locals
+# class add_path:
+#     def __init__(self, path):
+#         self.original_sys_path = sys.path.copy()
+#         self.path = path
+#
+#     def __enter__(self):
+#         sys.path.insert(0, self.path)
+#
+#     def __exit__(self, exc_type, exc_value, traceback):
+#         sys.path = self.original_sys_path.copy()
+#
+#
+# def execfile(file_path, my_globals=None, my_locals=None):
+#     if my_globals is None:
+#         my_globals = {}
+#     my_globals.update({
+#         "__file__": file_path,
+#         "__name__": "__main__",
+#     })
+#     file_path = os.path.abspath(file_path)
+#     parent_folder_path = os.path.dirname(file_path)
+#     with add_path(parent_folder_path):
+#         with open(file_path, 'rt') as file:
+#             exec(compile(file.read(), file_path, 'exec'), my_globals, my_locals)
+#
+#
+# def load_configuration_file(file_path):
+#     my_globals = {}
+#     my_globals.update({
+#         "__file__": file_path,
+#         "__name__": "__main__",
+#     })
+#     my_locals = {}
+#     file_path = os.path.abspath(file_path)
+#     parent_folder_path = os.path.dirname(file_path)
+#     with add_path(parent_folder_path):
+#         with open(file_path, 'rt') as file:
+#             exec(compile(file.read(), file_path, 'exec'), my_globals, my_locals)
+#     return my_locals
 
 
 def test(targets_folder_path,
@@ -91,13 +92,11 @@ def test(targets_folder_path,
 
     # Determine the absolute path to the "reference" DLC folder
     this_script_path = os.path.realpath(__file__)
-    this_script_folder_path = os.path.dirname(this_script_path)
-    template_dlc_root_folder_path = os.path.normpath(os.path.join(this_script_folder_path, 'dlc'))
+    delectable_folder_path = os.path.dirname(this_script_path)
+    template_dlc_root_folder_path = os.path.normpath(os.path.join(delectable_folder_path, 'dlc'))
 
     # Determine the absolute path to the parent temp folder that we can write to (e.g. /scratch/svobodalab)
-    initial_working_folder_path = os.getcwd()
-    print("username is %s" % get_username())
-    scratch_folder_path = "/tmp"
+    scratch_folder_path = dlct.determine_scratch_folder_path()
     print("scratch_folder_path is %s" % scratch_folder_path)
 
     scratch_dlc_container_path_maybe = []  # want to keep track of this so we know whether or not to delete it
@@ -119,7 +118,7 @@ def test(targets_folder_path,
     # Load the configuration file
     configuration_file_name = 'myconfig.py'
     configuration_file_path = os.path.join(targets_folder_path, configuration_file_name)
-    configuration = load_configuration_file(configuration_file_path)
+    configuration = dlct.load_configuration_file(configuration_file_path)
 
     # Copy the configuration file into the scratch DLC folder
     scratch_configuration_file_path = os.path.join(scratch_dlc_root_folder_path, configuration_file_name)
@@ -149,20 +148,21 @@ def test(targets_folder_path,
     os.chdir(testing_scripts_scratch_folder_path)
 
     # Run the first script
-    apply_model_to_test_set_script_path = os.path.join(this_script_folder_path,
-                                                       'dlc',
-                                                       'Evaluation-Tools',
-                                                       'Step1_EvaluateModelonDataset.py')
-    print("apply_model_to_test_set_script_path: %s\n" % apply_model_to_test_set_script_path)
-    return_code = os.system('/usr/bin/python3 %s' % apply_model_to_test_set_script_path)
-    print('Return code from running %s was %d' % (apply_model_to_test_set_script_path, return_code))
-    if return_code != 0:
-        raise RuntimeError(
-            'There was a problem running %s, return code was %d' %
-            (apply_model_to_test_set_script_path, return_code))
+    # apply_model_to_test_set_script_path = os.path.join(delectable_folder_path,
+    #                                                    'dlc',
+    #                                                    'Evaluation-Tools',
+    #                                                    'Step1_EvaluateModelonDataset.py')
+    # print("apply_model_to_test_set_script_path: %s\n" % apply_model_to_test_set_script_path)
+    # return_code = os.system('/usr/bin/python3 %s' % apply_model_to_test_set_script_path)
+    # print('Return code from running %s was %d' % (apply_model_to_test_set_script_path, return_code))
+    # if return_code != 0:
+    #     raise RuntimeError(
+    #         'There was a problem running %s, return code was %d' %
+    #         (apply_model_to_test_set_script_path, return_code))
+    EvaluateModelOnDataSet.dlc_evaluate_model_on_dataset(network_folder_path)
 
     # Run the second script
-    analyze_test_set_performance_script_path = os.path.join(this_script_folder_path,
+    analyze_test_set_performance_script_path = os.path.join(delectable_folder_path,
                                                             'dlc',
                                                             'Evaluation-Tools',
                                                             'Step2_AnalysisofResults.py')
@@ -193,7 +193,7 @@ def test(targets_folder_path,
     # # cd into the (scratch) folder, run the training script, cd back
     # folder_for_running_training_path = os.path.join(scratch_tensorflow_models_path, trainset_folder_name, "train")
     # # training_script_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "train.py")
-    # training_script_path = os.path.join(this_script_folder_path, "dlc", "pose-tensorflow", "train.py")
+    # training_script_path = os.path.join(delectable_folder_path, "dlc", "pose-tensorflow", "train.py")
     # os.chdir(folder_for_running_training_path)
     # # runpy.run_path(training_script_path)
     # # return_code = subprocess.call(['/usr/bin/python3', training_script_path], shell=True)
