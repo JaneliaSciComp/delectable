@@ -31,7 +31,7 @@ from dlc.pose_tensorflow.config import load_config
 from dlc.pose_tensorflow.nnet import predict
 from dlc.pose_tensorflow.dataset.pose_dataset import data_to_input
 
-# Dependencies for anaysis
+# Dependencies for analysis
 import pickle
 import skimage
 import numpy as np
@@ -41,6 +41,7 @@ import skimage.color
 #import dlc.Generating_a_Training_Set.auxiliaryfunctions
 from tqdm import tqdm
 #import dlct
+import auxiliaryfunctions
 
 # print("Starting evaluation") #, sys.argv)
 # snapshotIndex=int(sys.argv[1])

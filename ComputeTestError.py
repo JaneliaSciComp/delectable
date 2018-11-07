@@ -25,7 +25,7 @@ import sys
 # #sys.path.append(subfolder + "/pose-tensorflow/")
 # sys.path.append(os.path.join(subfolder, "Generating_a_Training_Set"))
 
-#import auxiliaryfunctions
+import auxiliaryfunctions
 import pickle
 #from myconfig import Task, date, scorer, Shuffles, TrainingFraction, snapshotindex, pcutoff, plotting, colormap
 
@@ -38,6 +38,8 @@ from skimage import io
 import numpy as np
 import pandas as pd
 
+import dlct
+
 ####################################################
 # Auxiliary functions
 ####################################################
@@ -48,7 +50,7 @@ import pandas as pd
 #     RGB color; the keyword argument name must be a standard mpl colormap name.'''
 #     return plt.cm.get_cmap(name, n)
 
-def MakeLabeledImage(DataCombined,imagenr,imagefilename,Scorers,bodyparts,colors,labels=['+','.','x'],scaling=1,alphavalue=.5,dotsize=15):
+def MakeLabeledImage(DataCombined,imagenr,imagefilename,Scorers,bodyparts,colors,labels=['+','.','x'],scaling=1,alphavalue=.5,dotsize=15, pcutoff=0.1):
     '''Creating a labeled image with the original human labels, as well as the DeepLabCut's!'''
     plt.axis('off')
     im=io.imread(os.path.join(imagefilename,DataCombined.index[imagenr]))
@@ -78,7 +80,7 @@ def MakeLabeledImage(DataCombined,imagenr,imagefilename,Scorers,bodyparts,colors
     plt.gca().invert_yaxis()    
     return 0
 
-def pairwisedistances(DataCombined,scorer1,scorer2,pcutoff=-1,bodyparts=None):
+def pairwisedistances(DataMachine, DataCombined,scorer1,scorer2,pcutoff=-1,bodyparts=None):
     ''' Calculates the pairwise Euclidean distance metric '''
     mask=DataMachine[scorer2].xs('likelihood',level=1,axis=1)>=pcutoff
     if bodyparts==None:
@@ -96,13 +98,13 @@ fs = 15  # fontsize for plots
 ####################################################
 
 # loading meta data / i.e. training & test files
-basefolder = os.path.join('..','pose-tensorflow','models')
+#basefolder = os.path.join('..','pose-tensorflow','models')
 
-def compute_test_error(basefolder, Task, date, scorer, Shuffles, TrainingFraction, snapshotindex, pcutoff, plotting, colormap) :
-    folder = os.path.join('UnaugmentedDataSet_' + Task + date)
-    datafolder = os.path.join(basefolder,folder)
+def compute_test_error(model_folder_path, Task, date, scorer, Shuffles, TrainingFraction, snapshotindex, pcutoff, plotting, colormap) :
+    unaugmented_folder_name = 'UnaugmentedDataSet_' + Task + date
+    unaugmented_folder_path = os.path.join(model_folder_path, unaugmented_folder_name)
 
-    data = pd.read_hdf(os.path.join(datafolder , 'data-' + Task , 'CollectedData_' + scorer + '.h5'),'df_with_missing')
+    data = pd.read_hdf(os.path.join(unaugmented_folder_path , 'data-' + Task , 'CollectedData_' + scorer + '.h5'),'df_with_missing')
 
     ####################################################
     # Models vs. benchmark for varying training state
@@ -110,6 +112,7 @@ def compute_test_error(basefolder, Task, date, scorer, Shuffles, TrainingFractio
 
     # only specific parts can also be compared (not all!) (in that case change which bodyparts by providing a list below)
     comparisonbodyparts = list(np.unique(data.columns.get_level_values(1)))
+    colors = None
     if plotting==True:
         #colors = dlct.get_cmap(len(comparisonbodyparts))
         colors = dlct.get_repeated_cmap(colormap, len(comparisonbodyparts))
@@ -121,7 +124,7 @@ def compute_test_error(basefolder, Task, date, scorer, Shuffles, TrainingFractio
                 if "forTask_" + str(Task) in file and "shuffle" + str(shuffle) in
                 file and "_" + str(int(trainFraction * 100)) in file]
 
-            metadatafile =os.path.join(datafolder , "Documentation_" + "data-" + Task + "_" + str(
+            metadatafile =os.path.join(unaugmented_folder_path , "Documentation_" + "data-" + Task + "_" + str(
                 int(trainFraction * 100)) + "shuffle" + str(shuffle) + ".pickle")
             with open(metadatafile, 'rb') as f:
                 [
@@ -152,7 +155,7 @@ def compute_test_error(basefolder, Task, date, scorer, Shuffles, TrainingFractio
               DataMachine = pd.read_hdf(os.path.join("Results",fns[index]), 'df_with_missing')
               DataCombined = pd.concat([data.T, DataMachine.T], axis=0).T
               scorer_machine = DataMachine.columns.get_level_values(0)[0]
-              RMSE,RMSEpcutoff = pairwisedistances(DataCombined, scorer, scorer_machine,pcutoff,comparisonbodyparts)
+              RMSE,RMSEpcutoff = pairwisedistances(DataMachine, DataCombined, scorer, scorer_machine,pcutoff,comparisonbodyparts)
               testerror = np.nanmean(RMSE.iloc[testIndexes].values.flatten())
               trainerror = np.nanmean(RMSE.iloc[trainIndexes].values.flatten())
               testerrorpcutoff = np.nanmean(RMSEpcutoff.iloc[testIndexes].values.flatten())
@@ -161,18 +164,25 @@ def compute_test_error(basefolder, Task, date, scorer, Shuffles, TrainingFractio
               print("With pcutoff of", pcutoff," train error:",np.round(trainerrorpcutoff,2), "pixels. Test error:", np.round(testerrorpcutoff,2), "pixels")
               print("Thereby, the errors are given by the average distances between the labels by DLC and the scorer.")
 
-              # if plotting==True:
-              #    foldername=os.path.join('LabeledImages_'+scorer_machine)
-              #    auxiliaryfunctions.attempttomakefolder(foldername)
-              #    NumFrames=np.size(DataCombined.index)
-              #    for ind in np.arange(NumFrames):
-              #        fn=DataCombined.index[ind]
-              #
-              #        fig=plt.figure()
-              #        ax=fig.add_subplot(1,1,1)
-              #        MakeLabeledImage(DataCombined,ind,os.path.join(datafolder,'data-'+Task),[scorer,scorer_machine],comparisonbodyparts,colors)
-              #        if ind in trainIndexes:
-              #            plt.savefig(os.path.join(foldername,'TrainingImg'+str(ind)+'_'+fn.split('/')[0]+'_'+fn.split('/')[1]))
-              #        else:
-              #            plt.savefig(os.path.join(foldername,'TestImg'+str(ind)+'_'+fn.split('/')[0]+'_'+fn.split('/')[1]))
-              #        plt.close("all")
+              if plotting==True:
+                 foldername=os.path.join('LabeledImages_'+scorer_machine)
+                 auxiliaryfunctions.attempttomakefolder(foldername)
+                 NumFrames=np.size(DataCombined.index)
+                 for ind in np.arange(NumFrames):
+                     fn=DataCombined.index[ind]
+
+                     fig=plt.figure()
+                     ax=fig.add_subplot(1,1,1)
+                     MakeLabeledImage(DataCombined,
+                                      ind,
+                                      os.path.join(unaugmented_folder_path, 'data-'+Task),
+                                      [scorer,scorer_machine],
+                                      comparisonbodyparts,
+                                      colors,
+                                      pcutoff)
+                     if ind in trainIndexes:
+                         plt.savefig(os.path.join(foldername,'TrainingImg'+str(ind)+'_'+fn.split('/')[0]+'_'+fn.split('/')[1]))
+                     else:
+                         plt.savefig(os.path.join(foldername,'TestImg'+str(ind)+'_'+fn.split('/')[0]+'_'+fn.split('/')[1]))
+                     plt.clf()
+                     plt.close("all")
