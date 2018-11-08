@@ -20,13 +20,13 @@ CUDA_VISIBLE_DEVICES=0 python3 AnalyzeVideos.py
 import os
 import sys
 
-# Add some folders to the python path
-path_to_this_script = os.path.abspath(__file__)
-path_to_delectable_folder = os.path.dirname(path_to_this_script)
-dlc_folder_path = os.path.join(path_to_delectable_folder, "dlc")
-sys.path.append(os.path.join(dlc_folder_path, "pose_tensorflow"))
-sys.path.append(os.path.join(dlc_folder_path, "Generating_a_Training_Set"))
-#sys.path.append(model_folder_path)
+# # Add some folders to the python path
+# path_to_this_script = os.path.abspath(__file__)
+# path_to_delectable_folder = os.path.dirname(path_to_this_script)
+# dlc_folder_path = os.path.join(path_to_delectable_folder, "dlc")
+# sys.path.append(os.path.join(dlc_folder_path, "pose_tensorflow"))
+# sys.path.append(os.path.join(dlc_folder_path, "Generating_a_Training_Set"))
+# #sys.path.append(model_folder_path)
 
 import dlct
 
@@ -53,16 +53,13 @@ import numpy as np
 from tqdm import tqdm
 
 
-def getpose(image, cfg, outputs, outall=False):
+def getpose_bang_bang(sess, inputs, image, cfg, outputs):
     ''' Adapted from DeeperCut, see pose-tensorflow folder'''
     image_batch = data_to_input(skimage.color.gray2rgb(image))
     outputs_np = sess.run(outputs, feed_dict={inputs: image_batch})
     scmap, locref = predict.extract_cnn_output(outputs_np, cfg)
     pose = predict.argmax_pose_predict(scmap, locref, cfg.stride)
-    if outall:
-        return scmap, locref, pose
-    else:
-        return pose
+    return pose
 
     
 def output_file_path_from_input_paths(model_folder_path, video_file_path, output_folder_path) :
@@ -204,7 +201,7 @@ def apply_model(model_folder_path, video_file_path):
                 break
             else:
                 last_image = image
-                pose = getpose(image, cfg, outputs)
+                pose = getpose_bang_bang(sess, inputs, image, cfg, outputs)
                 PredicteData[index, :] = pose.flatten()  # NOTE: thereby cfg['all_joints_names'] should be same order as bodyparts!
 
     stop = time.time()
