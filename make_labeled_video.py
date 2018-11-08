@@ -183,7 +183,7 @@ def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_fold
 
             plt.close("all")
 
-    os.chdir(frames_folder_path)
+    #os.chdir(frames_folder_path)
 
     print("All labeled frames were created, now generating video...")
     try:
@@ -192,7 +192,7 @@ def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_fold
         #    str(clip.fps), '-i', 'frame-%04d.png', '-pix_fmt', 'yuv420p', output_file_path])
         subprocess.call([
             'ffmpeg', '-y', '-framerate',
-            '30', '-i', 'frame-%04d.png', '-pix_fmt', 'yuv420p', output_file_path])
+            '30', '-i', os.path.join(frames_folder_path, 'frame-%04d.png'), '-pix_fmt', 'yuv420p', output_file_path])
     except FileNotFoundError:
         print("Ffmpeg not correctly installed, see https://github.com/AlexEMG/DeepLabCut/issues/45")
 
@@ -217,17 +217,18 @@ def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_fold
 #tmpfolder = 'temp' + vname
 #auxiliaryfunctions.attempttomakefolder(tmpfolder)
 
+# Synthesize the output file path
+output_file_path = dlct.replace_extension(h5_file_path, '.mp4')
+
+
 generalized_slash_tmp_path = dlct.determine_scratch_folder_path()
 print("generalized_slash_tmp_path is %s" % generalized_slash_tmp_path)
-scratch_folder_path_maybe = []  # want to keep track of this so we know whether or not to delete it
-try:
-    # Synthesize the output file path
-    output_file_path = dlct.replace_extension(h5_file_path, '.mp4')
-
+#scratch_folder_path_maybe = []  # want to keep track of this so we know whether or not to delete it
+with tempfile.TemporaryDirectory(prefix=generalized_slash_tmp_path + "/") as scratch_folder_path:
     # Make a temporary folder
     #scratch_folder_path = dlct.replace_extension(h5_file_path, '-frames')
-    scratch_folder_path = tempfile.mkdtemp(prefix=generalized_slash_tmp_path + "/")
-    scratch_folder_path_maybe = [scratch_folder_path]
+    #scratch_folder_path = tempfile.mkdtemp(prefix=generalized_slash_tmp_path + "/")
+    #scratch_folder_path_maybe = [scratch_folder_path]
     print("scratch_folder_path is %s" % scratch_folder_path)
 
     # Make the video with the little dots in it
@@ -240,20 +241,20 @@ try:
     clip = VideoFileClip(video_file_path)
     CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, scratch_folder_path, output_file_path)
 
-    # Delete the scratch folder
-    shutil.rmtree(scratch_folder_path)
+    # # Delete the scratch folder
+    # shutil.rmtree(scratch_folder_path)
 
-except Exception as e:
-    # Try to clean up some before re-throwing
-    print("Something went wrong!")
-
-    # Remove the scratch folder
-    if not dlct.is_empty(scratch_folder_path_maybe) :
-        scratch_folder_path = scratch_folder_path_maybe[0]
-        shutil.rmtree(scratch_folder_path)
-
-    # # cd back to the initial folder
-    # os.chdir(initial_working_folder_path)
-
-    # Re-throw the exception
-    raise e
+# except Exception as e:
+#     # Try to clean up some before re-throwing
+#     print("Something went wrong!")
+#
+#     # Remove the scratch folder
+#     if not dlct.is_empty(scratch_folder_path_maybe) :
+#         scratch_folder_path = scratch_folder_path_maybe[0]
+#         shutil.rmtree(scratch_folder_path)
+#
+#     # # cd back to the initial folder
+#     # os.chdir(initial_working_folder_path)
+#
+#     # Re-throw the exception
+#     raise e
