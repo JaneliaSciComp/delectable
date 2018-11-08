@@ -228,7 +228,6 @@ def apply_model(model_folder_path, video_file_path):
 # end of def apply_model(model_folder_path, video_file_path):
 
 
-
 #
 # main
 #
