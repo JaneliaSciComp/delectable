@@ -70,12 +70,7 @@ def output_file_path_from_input_paths(model_folder_path, video_file_path, output
     return os.path.join(output_folder_path, output_file_name)
 
 
-def apply_model(model_folder_path, video_file_path):
-    # # Get the command-line args
-    # model_folder_path = os.path.abspath(sys.argv[1])
-    # video_file_path = os.path.abspath(sys.argv[2])
-    output_file_path = output_file_path_from_input_paths(model_folder_path, video_file_path, os.getcwd())
-
+def apply_model(model_folder_path, video_file_path, output_file_path):
     # Load the configuration file
     configuration_file_name = 'myconfig.py'
     configuration_file_path = os.path.join(model_folder_path, configuration_file_name)
@@ -235,5 +230,9 @@ if __name__ == '__main__':
     # Get the command-line args
     model_folder_path = os.path.abspath(sys.argv[1])
     video_file_path = os.path.abspath(sys.argv[2])
+    if len(sys.argv)>=4:
+        output_file_path = os.path.abspath(sys.argv[3])
+    else:
+        output_file_path = output_file_path_from_input_paths(model_folder_path, video_file_path, os.getcwd())
 
-    apply_model(model_folder_path, video_file_path)
+    apply_model(model_folder_path, video_file_path, output_file_path)
