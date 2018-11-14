@@ -74,7 +74,10 @@ def output_file_path_from_input_paths(model_folder_path, video_file_path, output
 # Get the command-line args
 model_folder_path = os.path.abspath(sys.argv[1])
 video_file_path = os.path.abspath(sys.argv[2])
-output_file_path = output_file_path_from_input_paths(model_folder_path, video_file_path, os.getcwd())
+if len(sys.argv) >= 4:
+    output_file_path = os.path.abspath(sys.argv[3])
+else:
+    output_file_path = output_file_path_from_input_paths(model_folder_path, video_file_path, os.getcwd())
 
 # Load the configuration file
 configuration_file_name = 'myconfig.py'
