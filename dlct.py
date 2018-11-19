@@ -103,4 +103,4 @@ def system(command_as_list):
     # wait for the process to terminate
     out, err = process.communicate()
     errcode = process.returncode
-    return (errcode, out, err)
+    return (errcode, out.decode(), err.decode())
