@@ -15,3 +15,4 @@ mne-side-crf-*
 resnet*.ckpt
 below-crf-51-model-3
 dave-liu-testing
+*-frames
