@@ -8,6 +8,7 @@ import shutil
 import getpass
 import matplotlib.pyplot as plt
 import subprocess
+import pathlib
 
 
 def get_username():
@@ -104,3 +105,19 @@ def system(command_as_list):
     out, err = process.communicate()
     errcode = process.returncode
     return (errcode, out.decode(), err.decode())
+
+def common_prefix_path(path1_as_string, path2_as_string) :
+    # Re-implement os.path.commonpath(), b/c Python 3.4 doesn't have it.
+    path1_as_tuple = pathlib.Path(path1_as_string).parts
+    path2_as_tuple = pathlib.Path(path2_as_string).parts
+    n1 = len(path1_as_tuple)
+    n2 = len(path2_as_tuple)
+    max_n = min(n1, n2)
+    n = max_n  # fallback number of common elements if all elements turn out to be equal
+    for i in range(max_n) :
+        if path1_as_tuple[i] != path2_as_tuple[i] :
+            n = i
+            break
+    result_as_tuple = path1_as_tuple[:n]
+    result_as_string = os.path.join(*result_as_tuple)
+    return result_as_string
