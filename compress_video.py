@@ -91,7 +91,7 @@ def compress_video(input_video_path,
         # I'm hoping these videos won't have b-pyrmaids, since they are all outputs of ffmpeg that have passed through
         # the bottleneck of being represented as a folder of frames.
         #scratch_output_video_path = os.path.join(scratch_folder_path, 'foo-compressed.hevc.mp4')
-        command = ['ffmpeg', '-y', '-r', frame_rate_as_rational_string, '-i', scratch_bitstream_file_path, '-c', 'copy', output_video_path]
+        command = ['ffmpeg', '-y', '-r', frame_rate_as_rational_string, '-i', scratch_bitstream_file_path, '-c', 'copy', '-tag:v', 'hvc1', '-movflags', 'faststart', output_video_path]
         # Note that using -framerate instead of -r doesn't work: If you do this, the output is at 1 Hz.
         # At least for ffmpeg 4.0.2...
         (return_code, stdout_as_string, stderr_as_string) = dlct.system(command)
