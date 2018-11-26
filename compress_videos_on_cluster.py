@@ -7,7 +7,7 @@ import time
 import dlct
 
 
-def process_files_in_one_folder(leaf_script_path, mount_folder_path, source_folder_path, names_of_source_files, output_folder_path, n_submitted) :
+def process_files_in_one_folder(leaf_script_path, root_input_folder_path, source_folder_path, names_of_source_files, output_folder_path, n_submitted) :
     # Scan the source files, spawn a job for any without a target file,
     # or that are newer than the target file.
     print("In subfolder %s, found %d files" % (source_folder_path, len(names_of_source_files)))
@@ -57,13 +57,14 @@ def process_files_in_one_folder(leaf_script_path, mount_folder_path, source_fold
                     stderr_file_path = os.path.join(output_folder_path, dlct.replace_extension(source_file_name, '-stderr.txt'))
                     print("stdout_file_path: %s" % stdout_file_path)
                     print("stderr_file_path: %s" % stderr_file_path)
-                    print("mount_folder_path: %s" % mount_folder_path)
+                    print("root_input_folder_path: %s" % root_input_folder_path)
                     print("source_file_path: %s" % source_file_path)
                     print("lock_file_path: %s"   % lock_file_path)
                     print("target_file_path: %s" % target_file_path)
                     print("PATH: %s" % os.environ['PATH'])
                     print("PWD: %s" % os.environ['PWD'])
-                    command_list = ['bsub', '-o', stdout_file_path, '-e', stderr_file_path, 'python3', leaf_script_path, source_file_path, lock_file_path, target_file_path]
+                    command_list = ['bsub', '-o', stdout_file_path, '-e', stderr_file_path, 
+                                    'python3', leaf_script_path, root_input_folder_path, source_file_path, lock_file_path, target_file_path]
                     print('About to subprocess.call(): %s' % repr(command_list))
                     return_code = subprocess.call(command_list)
                     if return_code == 0 :
@@ -81,7 +82,7 @@ def process_files_in_one_folder(leaf_script_path, mount_folder_path, source_fold
 # end of function
 
 
-def process_folder(leaf_script_path, mount_folder_path, input_folder_path, output_folder_path, n_submitted) :
+def process_folder(leaf_script_path, root_input_folder_path, input_folder_path, output_folder_path, n_submitted) :
     # print something to show progress
     print("Processing subfolder: %s" % input_folder_path)
 
@@ -109,7 +110,7 @@ def process_folder(leaf_script_path, mount_folder_path, input_folder_path, outpu
 
     # Process the files in this folder
     n_submitted = process_files_in_one_folder(leaf_script_path,
-                                              mount_folder_path,
+                                              root_input_folder_path,
                                               input_folder_path, 
                                               names_of_files, 
                                               output_folder_path, 
@@ -118,7 +119,7 @@ def process_folder(leaf_script_path, mount_folder_path, input_folder_path, outpu
     # For each folder in names_of_subfolders, recurse
     for subfolder_name in names_of_subfolders:
         n_submitted = process_folder(leaf_script_path,
-                                     mount_folder_path,
+                                     root_input_folder_path,
                                      os.path.join(input_folder_path, subfolder_name),
                                      os.path.join(output_folder_path, subfolder_name),
                                      n_submitted)
@@ -134,13 +135,14 @@ def process_folder(leaf_script_path, mount_folder_path, input_folder_path, outpu
 if __name__ == "__main__":
     this_script_path = os.path.realpath(__file__)
     this_folder_path = os.path.dirname(this_script_path)
-    leaf_script_path = os.path.join(this_folder_path, 'compress_video_and_delete_lock_file.py')
+    leaf_script_path = os.path.join(this_folder_path, 'compress_video_and_delete_input_file.py')
 
-    input_root_folder_path = os.path.abspath(sys.argv[1])
-    output_root_folder_path = os.path.abspath(sys.argv[2])
-    mount_folder_path = dlct.common_prefix_path(input_root_folder_path, output_root_folder_path)
-    print("mount_folder_path: %s" % mount_folder_path)
+    root_input_folder_path = os.path.abspath(sys.argv[1])
+    root_output_folder_path = os.path.abspath(sys.argv[2])
     n_submitted = 0
-    process_folder(leaf_script_path, mount_folder_path, input_root_folder_path, output_root_folder_path,
-                   n_submitted)
+    n_submitted = process_folder(leaf_script_path, 
+                                 root_input_folder_path, 
+                                 root_input_folder_path, 
+                                 root_output_folder_path,
+                                 n_submitted)
     print("%d jobs submitted total" % n_submitted)
