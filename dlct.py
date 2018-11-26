@@ -11,6 +11,19 @@ import subprocess
 import pathlib
 
 
+# Define a context manager for changing the working directory
+class Chdir:
+    def __init__(self, path):
+        self.original_working_path = os.getcwd()
+        self.our_working_path = path
+
+    def __enter__(self):
+        os.chdir(self.our_working_path)
+
+    def __exit__(self, *args):
+        os.chdir(self.original_working_path)
+
+
 def get_username():
     #return pwd.getpwuid(os.getuid())[0]
     return getpass.getuser()

@@ -53,9 +53,11 @@ multi_step:
 
 # How often display loss
 display_iters: 1000
+
 # How often to save training snapshot
 save_iters: 50000
-#max_iters: 5000
 max_iters: 1030000
 
-
+# values for testing
+#save_iters: 1000
+#max_iters: 5000

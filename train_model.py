@@ -4,25 +4,17 @@ import sys
 import os
 import tempfile
 import shutil
-import pwd
+import platform
 import dlct
-
-
-# Define a context manager for changing the working directory
-class Chdir():
-    def __init__(self, path):
-        self.original_working_path = os.getcwd()
-        self.our_working_path = path
-
-    def __enter__(self):
-        os.chdir(self.our_working_path)
-
-    def __exit__(self, *args):
-        os.chdir(self.original_working_path)
 
 
 def train_model(targets_folder_path,
                 model_folder_path):
+    # Set the python executable path
+    if platform.system() == 'Windows':
+        python_executable_path = 'C:/Users/taylora/AppData/Local/Programs/Python/Python36/python.exe'
+    else:
+        python_executable_path = '/usr/bin/python3'
 
     # Determine the absolute path to the "reference" DLC folder
     this_script_path = os.path.realpath(__file__)
@@ -32,8 +24,8 @@ def train_model(targets_folder_path,
     # Determine the absolute path to the parent temp folder that we can write to (e.g. /scratch/svobodalab)
     initial_working_folder_path = os.getcwd()
     #print("username is %s" % dlct.get_username())
-    generalized_tmp_folder_path = dlct.determine_scratch_folder_path()
-    print("generalized_tmp_folder_path is %s" % generalized_tmp_folder_path)
+    generalized_slash_tmp_path = dlct.determine_scratch_folder_path()
+    print("generalized_slash_tmp_path is %s" % generalized_slash_tmp_path)
 
     scratch_dlc_container_path_maybe = []  # want to keep track of this so we know whether or not to delete it
     # try:
@@ -55,7 +47,7 @@ def train_model(targets_folder_path,
         # Load the configuration file
         configuration_file_name = 'myconfig.py'
         configuration_file_path = os.path.join(targets_folder_path, configuration_file_name)
-        configuration = load_configuration_file(configuration_file_path)
+        configuration = dlct.load_configuration_file(configuration_file_path)
 
         # Copy the configuration file into the scratch DLC folder
         scratch_configuration_file_path = os.path.join(scratch_dlc_root_folder_path, configuration_file_name)
@@ -76,7 +68,7 @@ def train_model(targets_folder_path,
         print("training_folder_path: %s\n" % training_folder_path)
 
         # cd into the scratch Generating_a_Training_Set folder
-        with Chdir(training_folder_path):
+        with dlct.Chdir(training_folder_path):
             # Determine absolute path to the Step2 script
             make_data_frame_script_path = os.path.join(delectable_folder_path,
                                                        "dlc",
@@ -84,7 +76,7 @@ def train_model(targets_folder_path,
                                                        "Step2_ConvertingLabels2DataFrame.py")
 
             # Run the Step 2 script
-            return_code = os.system('/usr/bin/python3 %s' % make_data_frame_script_path)
+            return_code = os.system('%s %s' % (python_executable_path, make_data_frame_script_path))
             if return_code != 0:
                 raise RuntimeError(
                     'There was a problem running, %s return code %d' % (make_data_frame_script_path, return_code))
@@ -96,7 +88,7 @@ def train_model(targets_folder_path,
                                                     "Step3_CheckLabels.py")
 
             # Run the Step3 script
-            return_code = os.system('/usr/bin/python3 %s' % check_labels_script_path)
+            return_code = os.system('%s %s' % (python_executable_path, check_labels_script_path))
             if return_code != 0:
                 raise RuntimeError(
                     'There was a problem running, %s return code %d' % (check_labels_script_path, return_code))
@@ -109,7 +101,7 @@ def train_model(targets_folder_path,
             print("make_training_file_script_path: %s\n" % make_training_file_script_path)
 
             # Run the Step 4 script
-            return_code = os.system('/usr/bin/python3 %s' % make_training_file_script_path)
+            return_code = os.system('%s %s' % (python_executable_path, make_training_file_script_path))
             if return_code != 0:
                 raise RuntimeError(
                     'There was a problem running %s, return code %d' % (make_training_file_script_path, return_code))
@@ -142,18 +134,22 @@ def train_model(targets_folder_path,
 
         # cd into the scratch training folder
         folder_for_running_training_path = os.path.join(scratch_tensorflow_models_path, trainset_folder_name, "train")
-        with Chdir(folder_for_running_training_path):
+        with dlct.Chdir(folder_for_running_training_path):
             # Run the training script (takes a long time)
             training_script_path = os.path.join(delectable_folder_path, "dlc", "pose-tensorflow", "train.py")
-            os.system('/usr/bin/python3 %s' % training_script_path)
+            os.system('%s %s' % (python_executable_path, training_script_path))
 
             # Delete the pretrained model folder in the scratch area
             shutil.rmtree(scratch_pretrained_folder_path)    
 
-        # Copy the scratch model folder output file location
+        # Copy the scratch model folder to the final output folder location
         print("About to copy result to final location...")
         print("model_folder_path: %s" % model_folder_path)
         shutil.copytree(scratch_tensorflow_models_path, model_folder_path)
+
+        # Copy the config file to the output folder location also.
+        # This is useful to have around for later operations taking the model as input.
+        shutil.copy(configuration_file_path, os.path.join(model_folder_path, 'myconfig.py'))
 
 
 #
