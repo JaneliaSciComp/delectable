@@ -16,3 +16,5 @@ resnet*.ckpt
 below-crf-51-model-3
 dave-liu-testing
 *-frames
+*-stderr.txt
+*-stdout.txt
