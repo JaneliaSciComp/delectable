@@ -73,6 +73,10 @@ h5_file_path = os.path.abspath(sys.argv[3])
 # Load the configuration file
 configuration_file_name = 'myconfig.py'
 configuration_file_path = os.path.join(model_folder_path, configuration_file_name)
+# For backwards-compatibility:
+if not os.path.exists(configuration_file_path):
+    configuration_file_name = 'myconfig_analysis.py'
+    configuration_file_path = os.path.join(model_folder_path, configuration_file_name)
 configuration = dlct.load_configuration_file(configuration_file_path)
 Task = configuration['Task']
 date = configuration['date']
@@ -87,8 +91,15 @@ y1 = configuration['y1']
 y2 = configuration['y2']
 #videotype = configuration['videotype']
 #storedata_as_csv = configuration['storedata_as_csv']
-trainingFractionList = configuration['TrainingFraction']
-shuffleList = configuration['Shuffles']
+# Do some things to accomodate myconfig_analysis.py files
+try:
+    trainingFractionList = configuration['TrainingFraction']
+except KeyError:
+    trainingFractionList = [ configuration['trainingsFraction'] ]
+try:
+    shuffleList = configuration['Shuffles']
+except KeyError:
+    shuffleList = [1]
 #humanscorer = configuration['scorer']
 
 # These things are in myconfig_analysis.py in raw DeepLabCut
