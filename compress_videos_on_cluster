@@ -1,0 +1,5 @@
+#! /bin/bash
+
+PATH_OF_THIS_SCRIPT="$(realpath "$0")"
+PATH_OF_THIS_SCRIPT_FOLDER="$(dirname "$PATH_OF_THIS_SCRIPT")"
+"$PATH_OF_THIS_SCRIPT_FOLDER/compress_videos_on_cluster" $1 $2
