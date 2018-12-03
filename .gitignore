@@ -18,3 +18,5 @@ dave-liu-testing
 *-frames
 *-stderr.txt
 *-stdout.txt
+ffmpeg
+ffprobe

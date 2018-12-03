@@ -3,4 +3,4 @@
 PATH_OF_THIS_SCRIPT="$(realpath "$0")"
 PATH_OF_THIS_SCRIPT_FOLDER="$(dirname "$PATH_OF_THIS_SCRIPT")"
 #python3 $PATH_OF_THIS_SCRIPT_FOLDER/apply_model.py $1 $2
-bsub -o $2-making-labeled-video-stdout.txt -e $2-making-labeled-video-stderr.txt -q gpu_any -n2 -gpu "num=1" singularity exec -B /scratch --nv $PATH_OF_THIS_SCRIPT_FOLDER/dlc.simg python3 $PATH_OF_THIS_SCRIPT_FOLDER/make_labeled_video.py $1 $2 $3 $4
+bsub -o $2-making-labeled-video-stdout.txt -e $2-making-labeled-video-stderr.txt -q gpu_any -n2 -gpu "num=1" singularity exec -B /scratch,/groups/svoboda/home/svobodalab/delectable --nv $PATH_OF_THIS_SCRIPT_FOLDER/dlc.simg python3 $PATH_OF_THIS_SCRIPT_FOLDER/make_labeled_video.py $1 $2 $3 $4
