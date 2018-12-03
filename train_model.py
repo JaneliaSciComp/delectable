@@ -156,7 +156,7 @@ def train_model(targets_folder_path,
 # main
 #
 if __name__ == "__main__":
-    # Get the arguments
+    # Get the arguments    
     targets_folder_path = os.path.abspath(sys.argv[1])
     model_folder_path = os.path.abspath(sys.argv[2])
 

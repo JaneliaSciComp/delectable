@@ -129,16 +129,11 @@ def process_folder(leaf_script_path, root_input_folder_path, input_folder_path, 
 # end of function   
 
 
-#
-# main
-#
-if __name__ == "__main__":
+def compress_videos_on_cluster(root_input_folder_path, root_output_folder_path):
     this_script_path = os.path.realpath(__file__)
     this_folder_path = os.path.dirname(this_script_path)
     leaf_script_path = os.path.join(this_folder_path, 'compress_video_and_delete_input_file.py')
 
-    root_input_folder_path = os.path.abspath(sys.argv[1])
-    root_output_folder_path = os.path.abspath(sys.argv[2])
     n_submitted = 0
     n_submitted = process_folder(leaf_script_path, 
                                  root_input_folder_path, 
@@ -146,3 +141,12 @@ if __name__ == "__main__":
                                  root_output_folder_path,
                                  n_submitted)
     print("%d jobs submitted total" % n_submitted)
+
+
+#
+# main
+#
+if __name__ == "__main__":
+    root_input_folder_path = os.path.abspath(sys.argv[1])
+    root_output_folder_path = os.path.abspath(sys.argv[2])
+    compress_videos_on_cluster(root_input_folder_path, root_output_folder_path)

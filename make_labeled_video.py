@@ -67,8 +67,9 @@ import shutil
 
 # Get the command-line args
 model_folder_path = os.path.abspath(sys.argv[1])
-video_file_path = os.path.abspath(sys.argv[2])
+input_video_file_path = os.path.abspath(sys.argv[2])
 h5_file_path = os.path.abspath(sys.argv[3])
+output_video_file_path = os.path.abspath(sys.argv[4])
 
 # Load the configuration file
 configuration_file_name = 'myconfig.py'
@@ -223,13 +224,13 @@ def CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, frames_fold
 
 #print("Starting ", videofolder, videos)
 #for video in videos:
-#video_file_path = video_file_path
+#input_video_file_path = input_video_file_path
 #vname = video.split('.')[0]
 #tmpfolder = 'temp' + vname
 #auxiliaryfunctions.attempttomakefolder(tmpfolder)
 
 # Synthesize the output file path
-output_file_path = dlct.replace_extension(h5_file_path, '.mp4')
+#output_file_path = dlct.replace_extension(h5_file_path, '.mp4')
 
 
 generalized_slash_tmp_path = dlct.determine_scratch_folder_path()
@@ -246,11 +247,11 @@ with tempfile.TemporaryDirectory(prefix=generalized_slash_tmp_path + "/") as scr
     #if os.path.exists(output_file_path):
     #    print("Labeled video already created.")
     #else:
-    print("Loading ", video_file_path, "and data.")
+    print("Loading ", input_video_file_path, "and data.")
     #h5_file_path = h5_file_path
     Dataframe = pd.read_hdf(h5_file_path)
-    clip = VideoFileClip(video_file_path)
-    CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, scratch_folder_path, output_file_path)
+    clip = VideoFileClip(input_video_file_path)
+    CreateVideo(clip, Dataframe, pcutoff, colormap_name, alphavalue, scratch_folder_path, output_video_file_path)
 
     # # Delete the scratch folder
     # shutil.rmtree(scratch_folder_path)
