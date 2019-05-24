@@ -10,11 +10,12 @@ import dlct
 
 def train_model(targets_folder_path,
                 model_folder_path):
-    # Set the python executable path
-    if platform.system() == 'Windows':
-        python_executable_path = 'C:/Users/taylora/AppData/Local/Programs/Python/Python36/python.exe'
-    else:
-        python_executable_path = '/usr/bin/python3'
+    # Set the python executable path (Use same executable as is running now)
+    python_executable_path = sys.executable
+    # if platform.system() == 'Windows':
+    #     python_executable_path = 'C:/Users/taylora/AppData/Local/Programs/Python/Python36/python.exe'
+    # else:
+    #     python_executable_path = '/usr/bin/python3'
 
     # Determine the absolute path to the "reference" DLC folder
     this_script_path = os.path.realpath(__file__)
