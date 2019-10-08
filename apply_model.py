@@ -199,24 +199,28 @@ start = time.time()
 PredicteData = np.zeros((nframes_approx, 3 * len(cfg['all_joints_names'])))
 clip.reader.initialize()
 print("Starting to extract posture")
+highest_index_with_valid_frame = -1
+#for image in clip.iter_frames():
 for index in tqdm(range(nframes_approx)):
-    #image = img_as_ubyte(clip.get_frame(index * 1. / fps))
     image = img_as_ubyte(clip.reader.read_frame())
     # Thanks to Rick Warren for the  following snipplet:
     # if close to end of video, start checking whether two adjacent frames are identical
     # this should only happen when moviepy has reached the final frame
-    # if two adjacent frames are identical, terminate the loop
+    # if two adjacent frames are identical, terminate the loop    
     if index==int(nframes_approx-frame_buffer*2):
         last_image = image
     elif index>int(nframes_approx-frame_buffer*2):
         if (image==last_image).all():
-            nframes = index
-            print("Detected frames: ", nframes)
+            #nframes = index
+            #print("Detected frames: ", nframes)
             break
         else:
             last_image = image
+    highest_index_with_valid_frame = index 
     pose = getpose(image, cfg, outputs)
     PredicteData[index, :] = pose.flatten()  # NOTE: thereby cfg['all_joints_names'] should be same order as bodyparts!
+nframes = highest_index_with_valid_frame + 1 
+print("Detected frames: ", nframes)
 
 stop = time.time()
 
