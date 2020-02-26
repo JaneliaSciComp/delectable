@@ -54,15 +54,34 @@ def train_model(targets_folder_path,
         scratch_configuration_file_path = os.path.join(scratch_dlc_root_folder_path, configuration_file_name)
         shutil.copyfile(configuration_file_path, scratch_configuration_file_path)
 
-        # Copy the targets folder to the scratch DLC folder, in the right place
+        # Determine whether the targets folder contains subfolders.
+        # If not, we assume it's old-style, and contains .csv and .png files.
+        # If the targets folder contains subfolders, we assume it new-style, and that
+        # the subfolders each contain .csv and .png files.
+        target_subfolder_names = [ dir_entry.name for dir_entry in os.scandir(targets_folder_path) if dir_entry.is_dir() ]
+        is_new_style = bool(target_subfolder_names)  # true iff nonempty
+
+        # Copy the targets folder to the scratch DLC folder, making a containing folder if needed
         task = configuration['Task']
         data_folder_name = 'data-' + task  # e.g. "data-licking-side"
-        targets_folder_name = os.path.basename(targets_folder_path)
-        scratch_targets_folder_path = os.path.join(scratch_dlc_root_folder_path,
-                                                   'Generating_a_Training_Set',
-                                                   data_folder_name,
-                                                   targets_folder_name)
+        if is_new_style :
+            print('Targets folder is new-style, with multiple subfolders')
+            scratch_targets_folder_path = os.path.join(scratch_dlc_root_folder_path,
+                                                       'Generating_a_Training_Set',
+                                                       data_folder_name)
+        else:
+            # Is old-style, have to create a subfolder to hold the .csv's and .png's
+            print("Targets folder is old-style, with images and .csv's right in it")
+            targets_folder_name = os.path.basename(targets_folder_path)
+            scratch_targets_folder_path = os.path.join(scratch_dlc_root_folder_path,
+                                                       'Generating_a_Training_Set',
+                                                       data_folder_name,
+                                                       targets_folder_name)
         shutil.copytree(targets_folder_path, scratch_targets_folder_path)
+
+        # To be on the safe side, remove the myconfig.py file from the scratch targets folder, since it' not needed there
+        configuration_file_within_scratch_targets_folder_path = os.path.join(scratch_targets_folder_path, configuration_file_name)
+        os.remove(configuration_file_within_scratch_targets_folder_path)
 
         # Determine absolute path the the scratch Generating_a_Training_Set folder
         training_folder_path = os.path.join(scratch_dlc_root_folder_path, "Generating_a_Training_Set")

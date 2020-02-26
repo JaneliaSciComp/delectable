@@ -1,0 +1,19 @@
+Versions of things in dlc.simg
+
+Ubuntu 16.04
+CUDA 8.0
+CUDNN 5.1
+Python 3.5
+tensorflow-gpu 1.2
+ffmpeg 2.8
+imageio 2.3
+easydict 1.7
+pytables 3.4
+sk-video 1.1
+requests 2.19
+moviepy 0.2
+tqdm 4.15
+pandas 0.23
+ipywidgets 6.0
+seaborn 0.9
+scikit-image 0.14
